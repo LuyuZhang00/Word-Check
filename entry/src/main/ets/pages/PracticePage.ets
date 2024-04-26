@@ -1,6 +1,25 @@
+import { PracticeStatus } from '../enums/PracticeStatus'
 @Entry
 @Component
 struct PracticePage {
+  @State practiceStatus: PracticeStatus = PracticeStatus.Stopped
+
+  startPractice(){
+    this.practiceStatus=PracticeStatus.Running
+    //todo:启动计时器
+  }
+
+  pausePractice(){
+    this.practiceStatus=PracticeStatus.Paused
+    //todo:停止计时器
+  }
+
+  stopPractice(){
+    this.practiceStatus=PracticeStatus.Stopped
+    //todo:停止计时器
+    //todo:弹窗
+  }
+
   build() {
     Column() {
       Column() {
@@ -17,7 +36,7 @@ struct PracticePage {
           .sentenceStyle()
       }
 
-      Column() {
+      Column({space:10}) {
         ForEach([1, 2, 3, 4], (option) => {
           Button(option.toString())
             .optionButtonStyle({
@@ -27,18 +46,34 @@ struct PracticePage {
         })
       }
 
-      Row(){
-        Button("停止测试")
+      Row({space:50}){
+        Button('停止测试')
           .controlButtonStyle({
-            bg:Color.Transparent,
-            border: Color.Black,
-            font: Color.Black
+            bg: Color.Transparent,
+            border: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black,
+            font: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black
           })
-        Button("开始测试")
+          .enabled(this.practiceStatus !== PracticeStatus.Stopped)
+          .onClick(()=>{
+            this.stopPractice()
+          })
+
+        Button(this.practiceStatus === PracticeStatus.Running ? '暂停测试' : '开始测试')
           .controlButtonStyle({
-            bg:Color.Black,
-            border: Color.Black,
+            bg: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
+            border: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
             font: Color.White
+          })
+          .stateEffect(false)
+          .onClick(()=>{
+            if(this.practiceStatus===PracticeStatus.Running){
+              //暂停测试
+              this.pausePractice()
+            }else {
+              //开始测试
+              this.startPractice()
+            }
+
           })
       }
     }.practiceBgStyle()
