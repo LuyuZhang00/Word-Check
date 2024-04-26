@@ -4,9 +4,9 @@ import { getRandomQuestions, Question } from '../model/Question'
 import promptAction from '@ohos.promptAction'
 import { OptionStatus } from '../enums/OptionStatus'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
-@Entry
+
 @Component
-struct PracticePage {
+export struct PracticePage {
   @State practiceStatus: PracticeStatus = PracticeStatus.Stopped
   @State totalCount: number = 10
   @State questions: Question[] =getRandomQuestions(this.totalCount)
