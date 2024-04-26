@@ -7,24 +7,32 @@ import { OptionStatus } from '../enums/OptionStatus'
 @Component
 struct PracticePage {
   @State practiceStatus: PracticeStatus = PracticeStatus.Stopped
-  @State questions: Question[] =getRandomQuestions(10)
+  @State totalCount: number = 10
+  @State questions: Question[] =getRandomQuestions(this.totalCount)
   @State currentIndex: number = 0
   @State answerStatus:AnswerStatus = AnswerStatus.Answering
   @State selectedOption:string = ''
+  @State answeredCount:number = 0
+  @State rightCount:number = 0
+  timerController: TextTimerController = new TextTimerController();
+  timeUsed:number = 0
 
   startPractice(){
     this.practiceStatus=PracticeStatus.Running
-    //todo:启动计时器
+    //启动计时器
+    this.timerController.start()
   }
 
   pausePractice(){
     this.practiceStatus=PracticeStatus.Paused
-    //todo:停止计时器
+    //停止计时器
+    this.timerController.pause()
   }
 
   stopPractice(){
     this.practiceStatus=PracticeStatus.Stopped
-    //todo:停止计时器
+    //停止计时器
+    this.timerController.reset()
     //todo:弹窗
   }
 
@@ -32,10 +40,67 @@ struct PracticePage {
     Column() {
       //统计信息
       Column() {
-        Text("统计信息")
-        Text("统计信息")
-        Text("统计信息")
-        Text("统计信息")
+        //准确率
+        StatItem({
+          icon:$r('app.media.ic_accuracy'),
+          name:"准确率",
+          fontColor:Color.Black,
+        }){
+          Text((this.answeredCount === 0 ? 0 : this.rightCount / this.answeredCount*100).toFixed()+'%')
+            .width(100)
+            .textAlign(TextAlign.Center)
+        }
+
+        //进度
+        StatItem({
+          icon:$r('app.media.ic_progress'),
+          name:"进度",
+          fontColor:Color.Black,
+        }){
+            Progress({value:this.answeredCount,total:this.totalCount})
+              .width(100)
+
+        }
+
+        //个数
+        StatItem({
+          icon:$r('app.media.ic_count'),
+          name:"个数",
+          fontColor:Color.Black,
+        }){
+          Button(this.totalCount.toString())
+            .width(100)
+            .height(25)
+            .backgroundColor('#EBEBEB')
+            .fontColor(Color.Black)
+            .enabled(this.practiceStatus === PracticeStatus.Stopped)
+            .onClick(()=>{
+              TextPickerDialog.show({
+                range:['5','10','15','20'],
+                value:this.totalCount.toString(),
+                onAccept:(result)=>{
+                  this.totalCount=parseInt(result.value)
+                  this.questions = getRandomQuestions(this.totalCount)
+                }
+              })
+            })
+
+        }
+
+        //用时
+        StatItem({
+          icon:$r('app.media.ic_timer'),
+          name:"用时",
+          fontColor:Color.Black,
+        }) {
+          Row(){
+            TextTimer({ controller: this.timerController })
+              .onTimer((utc,elapsedTime)=>{
+                this.timeUsed=elapsedTime;
+              })
+          }.width(100)
+          .justifyContent(FlexAlign.Center)
+        }
       }.statBgStyle()
 
       //单词模块
@@ -63,21 +128,27 @@ struct PracticePage {
                 return
               }
 
-              //todo:判断正误
+              //判断正误
               this.selectedOption = option
 
-              //todo:更新统计信息
+              //更新统计信息
+              this.answeredCount++
+              if(option===this.questions[this.currentIndex].answer){
+                this.rightCount++
+              }
 
-              //todo:切换题目
+              //切换题目
+              this.answerStatus = AnswerStatus.Answered
               if(this.currentIndex<this.questions.length-1){
                 setTimeout(()=>{
                   this.currentIndex++
+                  this.answerStatus = AnswerStatus.Answering
                 },500)
               }else{
                 this.stopPractice()
               }
             })
-        })
+        },option => this.questions[this.currentIndex].word + '-' + option)
       }
 
       //开始、停止按钮
@@ -116,11 +187,39 @@ struct PracticePage {
 }
 
 @Component
+struct StatItem {
+  icon:Resource;
+  name:string;
+  @BuilderParam statComp:()=>void
+  fontColor:Color
+
+  build() {
+    Row({space:10}){
+      Image(this.icon)
+        .height(14)
+        .width(14)
+
+      Text(this.name)
+        .fontWeight(FontWeight.Medium)
+        .fontSize(14)
+        .fontColor(this.fontColor)
+
+      Blank()
+      this.statComp()
+    }
+    .width('100%')
+    .height(30)
+
+  }
+}
+
+
+@Component
 struct OptionButton {
   option:string;
   answer:string;
-  @State optionStatus:OptionStatus = OptionStatus.Default
-  @Prop selectedOption:string
+  @State optionStatus:OptionStatus = OptionStatus.Default;
+  @Prop selectedOption:string;
   @Prop @Watch('onAnswerStatusChange') answerStatus:AnswerStatus
 
 
@@ -152,7 +251,7 @@ struct OptionButton {
       Button(this.option)
         .optionButtonStyle({
           bg:this.getBgColor(),
-          font: this.optionStatus===OptionStatus.Default ? Color.Black:Color.White
+          font: this.optionStatus===OptionStatus.Default?Color.Black:Color.White
         })
       if(this.optionStatus===OptionStatus.Right){
         Image($r('app.media.ic_right'))
