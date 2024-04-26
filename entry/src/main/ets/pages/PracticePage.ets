@@ -1,8 +1,14 @@
+import { AnswerStatus } from '../enums/AnswerStatus'
 import { PracticeStatus } from '../enums/PracticeStatus'
+import { getRandomQuestions, Question } from '../model/Question'
+import promptAction from '@ohos.promptAction'
 @Entry
 @Component
 struct PracticePage {
   @State practiceStatus: PracticeStatus = PracticeStatus.Stopped
+  @State questions: Question[] =getRandomQuestions(10)
+  @State currentIndex: number = 0
+  @State answerStatus:AnswerStatus = AnswerStatus.Answering
 
   startPractice(){
     this.practiceStatus=PracticeStatus.Running
@@ -22,6 +28,7 @@ struct PracticePage {
 
   build() {
     Column() {
+      //统计信息
       Column() {
         Text("统计信息")
         Text("统计信息")
@@ -29,23 +36,47 @@ struct PracticePage {
         Text("统计信息")
       }.statBgStyle()
 
+      //单词模块
       Column() {
-        Text("单词")
+        Text(this.questions[this.currentIndex].word)
           .wordStyle()
-        Text("例句")
+        Text(this.questions[this.currentIndex].sentence)
           .sentenceStyle()
       }
 
+      //选项
       Column({space:10}) {
-        ForEach([1, 2, 3, 4], (option) => {
-          Button(option.toString())
+        ForEach(this.questions[this.currentIndex].options, (option) => {
+          Button(option)
             .optionButtonStyle({
               bg:Color.White,
               font: Color.Black
             })
+            .enabled(this.answerStatus===AnswerStatus.Answering)
+            .onClick(()=>{
+              //判断练习状态
+              if(this.practiceStatus !==PracticeStatus.Running){
+                promptAction.showToast({message:"请先点击开始测试"})
+                return
+              }
+
+              //todo:判断正误
+
+              //todo:更新统计信息
+
+              //todo:切换题目
+              if(this.currentIndex<this.questions.length-1){
+                setTimeout(()=>{
+                  this.currentIndex++
+                },500)
+              }else{
+                this.stopPractice()
+              }
+            })
         })
       }
 
+      //开始、停止按钮
       Row({space:50}){
         Button('停止测试')
           .controlButtonStyle({
