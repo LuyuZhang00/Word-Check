@@ -2,6 +2,7 @@ import { AnswerStatus } from '../enums/AnswerStatus'
 import { PracticeStatus } from '../enums/PracticeStatus'
 import { getRandomQuestions, Question } from '../model/Question'
 import promptAction from '@ohos.promptAction'
+import { OptionStatus } from '../enums/OptionStatus'
 @Entry
 @Component
 struct PracticePage {
@@ -9,6 +10,7 @@ struct PracticePage {
   @State questions: Question[] =getRandomQuestions(10)
   @State currentIndex: number = 0
   @State answerStatus:AnswerStatus = AnswerStatus.Answering
+  @State selectedOption:string = ''
 
   startPractice(){
     this.practiceStatus=PracticeStatus.Running
@@ -47,11 +49,12 @@ struct PracticePage {
       //选项
       Column({space:10}) {
         ForEach(this.questions[this.currentIndex].options, (option) => {
-          Button(option)
-            .optionButtonStyle({
-              bg:Color.White,
-              font: Color.Black
-            })
+           OptionButton({
+             option:option,
+             answerStatus:this.answerStatus,
+             answer:this.questions[this.currentIndex].answer,
+             selectedOption:this.selectedOption
+           })
             .enabled(this.answerStatus===AnswerStatus.Answering)
             .onClick(()=>{
               //判断练习状态
@@ -61,6 +64,7 @@ struct PracticePage {
               }
 
               //todo:判断正误
+              this.selectedOption = option
 
               //todo:更新统计信息
 
@@ -111,6 +115,59 @@ struct PracticePage {
   }
 }
 
+@Component
+struct OptionButton {
+  option:string;
+  answer:string;
+  @State optionStatus:OptionStatus = OptionStatus.Default
+  @Prop selectedOption:string
+  @Prop @Watch('onAnswerStatusChange') answerStatus:AnswerStatus
+
+
+  onAnswerStatusChange(){
+    if(this.option===this.answer){
+      this.optionStatus = OptionStatus.Right
+    }else{
+      if(this.option === this.selectedOption){
+        this.optionStatus = OptionStatus.Wrong
+      }else{
+        this.optionStatus = OptionStatus.Default
+      }
+    }
+  }
+
+  getBgColor(){
+    switch(this.optionStatus){
+      case OptionStatus.Right:
+        return "#1DBF7B"
+      case OptionStatus.Wrong:
+        return "#FA635F"
+      default:
+        return Color.White
+    }
+  }
+
+  build() {
+    Stack(){
+      Button(this.option)
+        .optionButtonStyle({
+          bg:this.getBgColor(),
+          font: this.optionStatus===OptionStatus.Default ? Color.Black:Color.White
+        })
+      if(this.optionStatus===OptionStatus.Right){
+        Image($r('app.media.ic_right'))
+          .width(22)
+          .height(22)
+          .offset({x:10})
+      }else if(this.optionStatus===OptionStatus.Wrong){
+        Image($r('app.media.ic_wrong'))
+          .width(22)
+          .height(22)
+          .offset({x:10})
+      }
+    }.alignContent(Alignment.Start)
+  }
+}
 @Extend(Column) function practiceBgStyle() {
   .width('100%')
   .height('100%')
