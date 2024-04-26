@@ -3,6 +3,7 @@ import { PracticeStatus } from '../enums/PracticeStatus'
 import { getRandomQuestions, Question } from '../model/Question'
 import promptAction from '@ohos.promptAction'
 import { OptionStatus } from '../enums/OptionStatus'
+import { convertMillisecondsToTime } from '../utils/DateUtil'
 @Entry
 @Component
 struct PracticePage {
@@ -16,6 +17,29 @@ struct PracticePage {
   @State rightCount:number = 0
   timerController: TextTimerController = new TextTimerController();
   timeUsed:number = 0
+  dialogController:CustomDialogController = new CustomDialogController({
+    builder:ResultDialog({
+      answeredCount:this.answeredCount,
+      rightCount:this.rightCount,
+      timeUsed:this.timeUsed,
+      resetPractice:()=>{
+        this.questions=getRandomQuestions(this.totalCount)
+        this.currentIndex=0
+        this.answeredCount=0
+        this.rightCount=0
+        this.timeUsed=0
+        this.timerController.reset()
+        this.answeredCount=AnswerStatus.Answering
+      },
+      startPractice:()=>{
+        this.startPractice()
+      }
+
+    }),
+    customStyle:true,
+    autoCancel:false
+
+  })
 
   startPractice(){
     this.practiceStatus=PracticeStatus.Running
@@ -34,6 +58,7 @@ struct PracticePage {
     //停止计时器
     this.timerController.reset()
     //todo:弹窗
+    this.dialogController.open()
   }
 
   build() {
@@ -183,6 +208,94 @@ struct PracticePage {
           })
       }
     }.practiceBgStyle()
+  }
+}
+
+//@Preview
+@CustomDialog
+struct ResultDialog{
+  answeredCount:number;
+  rightCount:number;
+  timeUsed:number;
+  resetPractice:()=>void
+  startPractice:()=>void
+  controller:CustomDialogController = new CustomDialogController({
+    builder:ResultDialog()
+  })
+
+  build(){
+    Column({space:10}){
+        Image($r('app.media.ic_close'))
+          .width(25)
+          .height(25)
+          .alignSelf(ItemAlign.End)
+          .onClick(()=>{
+            this.controller.close()
+            this.resetPractice()
+
+          })
+
+        Column({space:10}){
+          Image($r('app.media.img_post'))
+            .width('100%')
+            .borderRadius(10)
+
+          StatItem({
+            icon:$r('app.media.ic_timer'),
+            name:'用时',
+            fontColor:Color.Black
+          }){
+            Text(convertMillisecondsToTime(this.timeUsed))
+          }
+
+          StatItem({
+            icon:$r('app.media.ic_accuracy'),
+            name:'准确率',
+            fontColor:Color.Black
+          }){
+            Text((this.answeredCount===0?0:this.rightCount/this.answeredCount*100).toFixed() + '%')
+          }
+
+          StatItem({
+            icon:$r('app.media.ic_count'),
+            name:'个数',
+            fontColor:Color.Black
+          }){
+            Text(this.answeredCount.toString())
+          }
+          Divider()
+          Row({space:30}){
+            Button("再来一局")
+              .controlButtonStyle({
+                bg:Color.Transparent,
+                border:Color.Black,
+                font:Color.Black
+              })
+              .onClick(()=>{
+                this.controller.close()
+                this.resetPractice()
+                this.startPractice()
+              })
+            Button("登录打卡")
+              .controlButtonStyle({
+                bg:Color.Black,
+                border:Color.Black,
+                font:Color.White
+              })
+              .onClick(()=>{
+                this.controller.close()
+                this.resetPractice()
+                //todo:登录并打卡
+              })
+          }
+        }.backgroundColor(Color.White)
+        .width('100%')
+        .padding(20)
+        .borderRadius(10)
+
+    }.backgroundColor(Color.Transparent)
+    .width('80%')
+
   }
 }
 
