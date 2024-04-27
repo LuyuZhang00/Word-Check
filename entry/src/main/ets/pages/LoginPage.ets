@@ -1,6 +1,7 @@
 import router from '@ohos.router'
 import { createPost, login, sendCode } from '../http/Api'
 import promptAction from '@ohos.promptAction'
+import emitter from '@ohos.events.emitter'
 @Entry
 @Component
 struct LoginPage {
@@ -76,6 +77,9 @@ struct LoginPage {
                 timeUsed:params['timeUsed']
               })
               promptAction.showToast({message:'打卡成功'})
+              //通知
+              emitter.emit({eventId:1})
+
               //todo:跳转到打卡圈
               this.currentTabIndex=1;
             }

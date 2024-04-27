@@ -4,12 +4,14 @@ import { StatItem } from './PracticePage'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
 import { getAllPost } from '../http/Api'
 import promptAction from '@ohos.promptAction'
+import emitter from '@ohos.events.emitter'
 @Component
 export struct CirclePage {
   @State postInfoList: PostInfo[] = []
   @StorageProp('token') @Watch('onTokenChange') token: string = ''
   page:number = 1
   total:number = 0
+  @State isLoading:Boolean = false;
 
   async getPostInfoPage(){
     let response = await getAllPost(this.page,10)
@@ -18,10 +20,24 @@ export struct CirclePage {
     this.page++;
   }
 
+  async refresh(){
+    this.isLoading = true;
+    this.postInfoList=[]
+    this.page=1
+    this.total=0
+    await this.getPostInfoPage()
+    this.isLoading = false;
+  }
+
   aboutToAppear(){
     if(this.token){
       this.getPostInfoPage()
     }
+
+    emitter.on({eventId:1},()=>{
+      this.refresh()
+
+    })
   }
 
   onTokenChange(){
@@ -46,7 +62,11 @@ export struct CirclePage {
 
       if (this.token) {
         //todo:打卡列表
-        this.listBuilder()
+        if(this.isLoading){
+          this.loadingBuilder()
+        }else{
+          this.listBuilder()
+        }
       } else {
         //todo:未登录
         this.unLoginBuilder()
@@ -54,6 +74,8 @@ export struct CirclePage {
     }.height('100%')
     .width('100%')
   }
+
+
 
   @Builder
   unLoginBuilder() {
@@ -75,6 +97,21 @@ export struct CirclePage {
         .onClick(() => router.pushUrl({ url: 'pages/LoginPage' }))
     }
     .width('100%')
+    .layoutWeight(1)
+    .justifyContent(FlexAlign.Center)
+  }
+
+  @Builder
+  loadingBuilder() {
+    Column({ space: 15 }) {
+      Image($r('app.media.ic_loading'))
+        .width(30)
+        .height(30)
+      Text('加载中...')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor('#7e8892')
+    }.width('100%')
     .layoutWeight(1)
     .justifyContent(FlexAlign.Center)
   }

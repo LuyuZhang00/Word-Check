@@ -6,6 +6,7 @@ import { OptionStatus } from '../enums/OptionStatus'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
 import router from '@ohos.router'
 import { createPost } from '../http/Api'
+import emitter from '@ohos.events.emitter'
 
 @Component
 export struct PracticePage {
@@ -299,6 +300,9 @@ struct ResultDialog{
                       timeUsed:this.timeUsed
                     })
                     promptAction.showToast({message:'打卡成功'})
+                    //通知
+                    emitter.emit({eventId:1})
+
                     //跳转到打卡圈
                     this.currentTabIndex=1
                   }else{
