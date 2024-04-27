@@ -2,7 +2,7 @@ import { PostInfo } from '../model/PostInfo'
 import router from '@ohos.router'
 import { StatItem } from './PracticePage'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
-import { getAllPost } from '../http/Api'
+import { cancelLike, getAllPost, like } from '../http/Api'
 import promptAction from '@ohos.promptAction'
 import emitter from '@ohos.events.emitter'
 @Component
@@ -12,6 +12,7 @@ export struct CirclePage {
   page:number = 1
   total:number = 0
   @State isLoading:Boolean = false;
+  scroller:Scroller = new Scroller()
 
   async getPostInfoPage(){
     let response = await getAllPost(this.page,10)
@@ -119,7 +120,7 @@ export struct CirclePage {
   @Builder
   listBuilder() {
     Stack() {
-      List() {
+      List({scroller:this.scroller}) {
         ForEach(this.postInfoList, (post) => {
           ListItem() {
             PostItem({ post: post })
@@ -147,7 +148,8 @@ export struct CirclePage {
         .backgroundColor(Color.Black)
         .opacity(0.5)
         .onClick(() => {
-          //todo:返回顶部
+          //返回顶部
+          this.scroller.scrollToIndex(0)
         })
 
         Button({ type: ButtonType.Circle }) {
@@ -161,6 +163,7 @@ export struct CirclePage {
         .opacity(0.5)
         .onClick(() => {
           //todo:刷新
+          this.refresh()
         })
       }
       .offset({ x: -20, y: -50 })
@@ -240,7 +243,19 @@ struct PostItem {
             .width(26)
             .height(26)
             .onClick(() => {
-              //todo：点赞/取消点赞
+              //点赞/取消点赞
+              if(this.post.isLike){
+                //取消点赞
+                this.post.isLike=false;
+                this.post.likeCount--;
+                cancelLike(this.post.id)
+
+              }else{
+                //点赞
+                this.post.isLike=true;
+                this.post.likeCount++;
+                like(this.post.id)
+              }
             })
         }.width(50)
       }.width('100%')
