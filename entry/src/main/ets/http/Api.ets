@@ -31,3 +31,13 @@ export function like(postId: number) {
 export function cancelLike(postId: number) {
   return instance.get('/word/like/cancel', { params: { postId: postId } })
 }
+
+//获取登录用户信息
+export function info() {
+  return instance.get('/word/user/info')
+}
+
+//获取我的登录打卡记录
+export function getMyPost(page: number, size: number) {
+  return instance.get('/word/post/getMine', { params: { page: page, size: size } })
+}

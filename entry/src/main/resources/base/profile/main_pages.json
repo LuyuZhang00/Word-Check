@@ -2,6 +2,7 @@
   "src": [
     "pages/Index",
     "pages/SplashPage",
-    "pages/LoginPage"
+    "pages/LoginPage",
+    "pages/PostHistoryPage"
   ]
 }
