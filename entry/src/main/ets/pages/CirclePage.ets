@@ -2,22 +2,37 @@ import { PostInfo } from '../model/PostInfo'
 import router from '@ohos.router'
 import { StatItem } from './PracticePage'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
+import { getAllPost } from '../http/Api'
+import promptAction from '@ohos.promptAction'
 @Component
 export struct CirclePage {
-  // @State postInfoList: PostInfo[] = []
-  @State postInfoList: PostInfo[] = [new PostInfo({
-    id: 1,
-    postText: "既然选择远方，当不负青春，砥砺前行",
-    rightCount: 3,
-    answeredCount: 4,
-    timeUsed: 5747,
-    createTime: "2024-03-19 18:54:33",
-    likeCount: 1,
-    nickname: "138****8888",
-    avatarUrl: "https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg",
-    isLike: false
-  })]
-  @StorageProp('token') token: string = ''
+  @State postInfoList: PostInfo[] = []
+  @StorageProp('token') @Watch('onTokenChange') token: string = ''
+  page:number = 1
+  total:number = 0
+
+  async getPostInfoPage(){
+    let response = await getAllPost(this.page,10)
+    response.data.data.records.forEach(post=>this.postInfoList.push(new PostInfo(post)))
+    this.total = response.data.data.total;
+    this.page++;
+  }
+
+  aboutToAppear(){
+    if(this.token){
+      this.getPostInfoPage()
+    }
+  }
+
+  onTokenChange(){
+    if(this.token){
+      this.getPostInfoPage()
+    }else{
+      this.postInfoList=[]
+      this.total=0
+      this.page=1
+    }
+  }
 
   build() {
     Column() {
@@ -76,6 +91,13 @@ export struct CirclePage {
       }.width('100%')
       .height('100%')
       .alignListItem(ListItemAlign.Center)
+      .onReachEnd(()=>{
+        if(this.postInfoList.length<this.total){
+          this.getPostInfoPage()
+        }else{
+          promptAction.showToast({message:'没有更多数据了'})
+        }
+      })
 
       Column({ space: 20 }) {
         Button({ type: ButtonType.Circle }) {
