@@ -1,4 +1,6 @@
 import router from '@ohos.router';
+PersistentStorage.PersistProp('token','');
+
 @Entry
 @Component
 struct SplashPage {
