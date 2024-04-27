@@ -3,7 +3,7 @@ import promptAction from '@ohos.promptAction';
 
 //创建axios实例
 export const instance = axios.create({
-  baseURL: 'http://192.168.3.70:3000',
+  baseURL: 'http://10.181.92.198:3000',
   timeout: 1000
 })
 
