@@ -1,3 +1,4 @@
+import { CirclePage } from './CirclePage';
 import { PracticePage } from './PracticePage';
 @Entry
 @Component
@@ -11,7 +12,7 @@ struct Index {
       }.tabBar(this.barBuilder(0, '答题', $r('app.media.ic_practice'), $r('app.media.ic_practice_selected')))
 
       TabContent(){
-        Text("圈子")
+        CirclePage()
       }.tabBar(this.barBuilder(1, '圈子', $r('app.media.ic_circle'), $r('app.media.ic_circle_selected')))
 
       TabContent(){

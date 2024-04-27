@@ -325,7 +325,7 @@ struct ResultDialog{
 }
 
 @Component
-struct StatItem {
+export struct StatItem {
   icon:Resource;
   name:string;
   @BuilderParam statComp:()=>void
