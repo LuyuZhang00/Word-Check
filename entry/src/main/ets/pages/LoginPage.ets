@@ -1,11 +1,13 @@
 import router from '@ohos.router'
-import { login, sendCode } from '../http/Api'
+import { createPost, login, sendCode } from '../http/Api'
+import promptAction from '@ohos.promptAction'
 @Entry
 @Component
 struct LoginPage {
   @State phone:string=''
   @State code:string=''
   @StorageLink('token') token:string = ''
+  @StorageLink('currentTabIndex') currentTabIndex: number = 0;
 
   build() {
     Column() {
@@ -65,6 +67,19 @@ struct LoginPage {
             //登录
             let response = await login(this.phone,this.code)
             this.token = response.data.data
+            if(this.currentTabIndex===0){
+              //todo:发送打卡请求
+              let params = router.getParams()
+              await createPost({
+                rightCount:params['rightCount'],
+                answeredCount:params['answeredCount'],
+                timeUsed:params['timeUsed']
+              })
+              promptAction.showToast({message:'打卡成功'})
+              //todo:跳转到打卡圈
+              this.currentTabIndex=1;
+            }
+            router.back()
           })
 
         Row() {

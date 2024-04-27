@@ -8,3 +8,11 @@ export function sendCode(phone: string) {
 export function login(phone: string, code: string) {
   return instance.post('/word/user/login', { phone: phone, code: code });
 }
+
+export function createPost(post: {
+  rightCount: number,
+  answeredCount: number,
+  timeUsed: number
+}) {
+  return instance.post('/word/post/create', post)
+}

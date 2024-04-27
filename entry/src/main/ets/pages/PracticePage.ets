@@ -4,6 +4,8 @@ import { getRandomQuestions, Question } from '../model/Question'
 import promptAction from '@ohos.promptAction'
 import { OptionStatus } from '../enums/OptionStatus'
 import { convertMillisecondsToTime } from '../utils/DateUtil'
+import router from '@ohos.router'
+import { createPost } from '../http/Api'
 
 @Component
 export struct PracticePage {
@@ -222,6 +224,8 @@ struct ResultDialog{
   controller:CustomDialogController = new CustomDialogController({
     builder:ResultDialog()
   })
+  @StorageProp('token') token:string = ''
+  @StorageLink('currentTabIndex') currentTabIndex: number = 0;
 
   build(){
     Column({space:10}){
@@ -276,16 +280,37 @@ struct ResultDialog{
                 this.resetPractice()
                 this.startPractice()
               })
-            Button("登录打卡")
+            Button(this.token ? "立即打卡" : "登录打卡")
               .controlButtonStyle({
                 bg:Color.Black,
                 border:Color.Black,
                 font:Color.White
               })
-              .onClick(()=>{
+              .onClick(async ()=>{
                 this.controller.close()
                 this.resetPractice()
                 //todo:登录并打卡
+                if(this.token){
+                // if(true){
+                    //发送打卡请求
+                    await createPost({
+                      rightCount:this.rightCount,
+                      answeredCount:this.answeredCount,
+                      timeUsed:this.timeUsed
+                    })
+                    promptAction.showToast({message:'打卡成功'})
+                    //跳转到打卡圈
+                    this.currentTabIndex=1
+                  }else{
+                  //跳转到登录页面
+                  router.pushUrl({url:'pages/LoginPage',params:{
+                    rightCount:this.rightCount,
+                    answeredCount:this.answeredCount,
+                    timeUsed:this.timeUsed
+
+                  }})
+
+                }
               })
           }
         }.backgroundColor(Color.White)

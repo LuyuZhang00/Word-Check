@@ -2,10 +2,10 @@ import { PracticePage } from './PracticePage';
 @Entry
 @Component
 struct Index {
-  @State currentTabIndex: number = 0;
+  @StorageLink('currentTabIndex') currentTabIndex: number = 0;
 
   build() {
-    Tabs(){
+    Tabs({index:this.currentTabIndex}){
       TabContent(){
         PracticePage()
       }.tabBar(this.barBuilder(0, '答题', $r('app.media.ic_practice'), $r('app.media.ic_practice_selected')))
