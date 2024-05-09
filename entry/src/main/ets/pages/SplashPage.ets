@@ -1,16 +1,16 @@
 import router from '@ohos.router';
-PersistentStorage.PersistProp('token','');
-AppStorage.SetOrCreate('currentTabIndex',0)
+PersistentStorage.PersistProp('token','');  // 在 PersistentStorage 中注册登录 token
+AppStorage.SetOrCreate('currentTabIndex',0);  // 在 AppStorage 中注册 currentTabIndex
 
 @Entry
 @Component
-struct SplashPage {
+struct SplashPage { // 启动页面
   @State flag:Boolean = false;
 
   onPageShow(){
     animateTo({duration:1000,onFinish:()=>{
       setTimeout(()=>{
-        router.replaceUrl({url:'pages/Index'})
+        router.replaceUrl({url:'pages/Index'})  // 切换页面，且不能返回
       },200);
     }},() => {
       this.flag=true;
@@ -19,7 +19,6 @@ struct SplashPage {
 
   build() {
     Column(){
-
       if(this.flag){
         Image($r('app.media.ic_logo'))
           .logoStyle()
@@ -29,12 +28,11 @@ struct SplashPage {
           .transition({type:TransitionType.Insert,opacity:0,translate:{x:150}})
       }
       Blank()
-      Text("SE Harmony Project")
+      Text("SE Harmony Project")  // 最底部
         .footerStyle()
-
     }.bgStyle()
-
  }
+
 }
 
 @Styles function bgStyle() {

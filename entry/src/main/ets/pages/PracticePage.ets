@@ -8,24 +8,26 @@ import router from '@ohos.router'
 import { createPost } from '../http/Api'
 import emitter from '@ohos.events.emitter'
 
+// 练习界面
 @Component
 export struct PracticePage {
-  @State practiceStatus: PracticeStatus = PracticeStatus.Stopped
-  @State totalCount: number = 10
-  @State questions: Question[] =getRandomQuestions(this.totalCount)
-  @State currentIndex: number = 0
-  @State answerStatus:AnswerStatus = AnswerStatus.Answering
-  @State selectedOption:string = ''
-  @State answeredCount:number = 0
-  @State rightCount:number = 0
-  timerController: TextTimerController = new TextTimerController();
+  @State practiceStatus:PracticeStatus = PracticeStatus.Stopped  // 练习状态，默认为 Stopped
+  @State totalCount:number = 10 // 题目数量
+  @State questions:Question[] = getRandomQuestions(this.totalCount)  // 题目，从题库中随机抽取
+  @State currentIndex:number = 0  // 当前题目
+  @State answerStatus:AnswerStatus = AnswerStatus.Answering // 作答状态
+  @State selectedOption:string = '' // 用户选择的选项
+  @State answeredCount:number = 0 // 已回答题目的数量
+  @State rightCount:number = 0  // 回答正确题目的数量
+  timerController:TextTimerController = new TextTimerController()
   timeUsed:number = 0
+
   dialogController:CustomDialogController = new CustomDialogController({
     builder:ResultDialog({
       answeredCount:this.answeredCount,
       rightCount:this.rightCount,
       timeUsed:this.timeUsed,
-      resetPractice:()=>{
+      resetPractice:()=>{ // 重置测试的函数
         this.questions=getRandomQuestions(this.totalCount)
         this.currentIndex=0
         this.answeredCount=0
@@ -34,68 +36,65 @@ export struct PracticePage {
         this.timerController.reset()
         this.answeredCount=AnswerStatus.Answering
       },
-      startPractice:()=>{
+      startPractice:()=>{ // 开始测试的函数
         this.startPractice()
       }
-
     }),
-    customStyle:true,
-    autoCancel:false
+    customStyle:true, // 允许使用自定义的弹窗样式
+    autoCancel:false  // 不允许点击遮障层退出
 
   })
 
+  // 开始练习回调函数：修改练习状态变量 PracticeStatus，启动计时器
   startPractice(){
     this.practiceStatus=PracticeStatus.Running
-    //启动计时器
     this.timerController.start()
   }
 
+  // 暂停练习回调函数：修改练习状态变量 PracticeStatus，暂停计时器
   pausePractice(){
     this.practiceStatus=PracticeStatus.Paused
-    //停止计时器
     this.timerController.pause()
   }
 
+  // 结束练习回调函数：修改练习状态变量 PracticeStatus，停止计时器，打开弹窗
   stopPractice(){
     this.practiceStatus=PracticeStatus.Stopped
-    //停止计时器
     this.timerController.reset()
-    //todo:弹窗
     this.dialogController.open()
   }
 
   build() {
-    Column() {
-      //统计信息
+    Column() {  // 最外层 Column 容器
+      // 统计面板
       Column() {
-        //准确率
+        // 准确率
         StatItem({
           icon:$r('app.media.ic_accuracy'),
           name:"准确率",
           fontColor:Color.Black,
-        }){
-          Text((this.answeredCount === 0 ? 0 : this.rightCount / this.answeredCount*100).toFixed()+'%')
+        }) {  // 自定义组件中只有一个 @BuilderParam，可以用大括号的方式传参
+          Text((this.answeredCount === 0 ? 0 : this.rightCount / this.answeredCount * 100).toFixed() + '%')
             .width(100)
             .textAlign(TextAlign.Center)
         }
 
-        //进度
+        // 进度
         StatItem({
           icon:$r('app.media.ic_progress'),
           name:"进度",
           fontColor:Color.Black,
-        }){
-            Progress({value:this.answeredCount,total:this.totalCount})
+        }) {
+            Progress({value:this.answeredCount, total:this.totalCount})  // 进度条
               .width(100)
-
         }
 
-        //个数
+        // 个数
         StatItem({
           icon:$r('app.media.ic_count'),
           name:"个数",
           fontColor:Color.Black,
-        }){
+        }) {
           Button(this.totalCount.toString())
             .width(100)
             .height(25)
@@ -103,97 +102,98 @@ export struct PracticePage {
             .fontColor(Color.Black)
             .enabled(this.practiceStatus === PracticeStatus.Stopped)
             .onClick(()=>{
-              TextPickerDialog.show({
+              TextPickerDialog.show({ // 文本选择器
                 range:['5','10','15','20'],
                 value:this.totalCount.toString(),
-                onAccept:(result)=>{
-                  this.totalCount=parseInt(result.value)
-                  this.questions = getRandomQuestions(this.totalCount)
+                onAccept:(result)=>{  // 选择了新的题目个数
+                  this.totalCount = parseInt(result.value)  // 更新题目个数
+                  this.questions = getRandomQuestions(this.totalCount)  // 获取新题目
                 }
               })
             })
-
         }
 
-        //用时
+        // 用时
         StatItem({
           icon:$r('app.media.ic_timer'),
           name:"用时",
           fontColor:Color.Black,
         }) {
           Row(){
-            TextTimer({ controller: this.timerController })
-              .onTimer((utc,elapsedTime)=>{
-                this.timeUsed=elapsedTime;
+            TextTimer({ controller: this.timerController }) // 计时器组件
+              .onTimer((utc,elapsedTime)=>{ // 计时器每次改变，都会出发 onTimer 事件
+                this.timeUsed = elapsedTime
               })
           }.width(100)
           .justifyContent(FlexAlign.Center)
         }
-      }.statBgStyle()
 
-      //单词模块
+      }.statBgStyle() // 统计面板样式
+
+      // 单词模块
       Column() {
-        Text(this.questions[this.currentIndex].word)
+        Text(this.questions[this.currentIndex].word)  // 单词
           .wordStyle()
-        Text(this.questions[this.currentIndex].sentence)
+        Text(this.questions[this.currentIndex].sentence)  // 例句
           .sentenceStyle()
       }
 
-      //选项
+      // 选项按钮
       Column({space:10}) {
         ForEach(this.questions[this.currentIndex].options, (option) => {
            OptionButton({
-             option:option,
-             answerStatus:this.answerStatus,
-             answer:this.questions[this.currentIndex].answer,
-             selectedOption:this.selectedOption
+             option:option, // 选项字符串
+             answer:this.questions[this.currentIndex].answer, // 正确答案字符串
+             selectedOption:this.selectedOption,
+             answerStatus:this.answerStatus
            })
-            .enabled(this.answerStatus===AnswerStatus.Answering)
-            .onClick(()=>{
-              //判断练习状态
-              if(this.practiceStatus !==PracticeStatus.Running){
+             .enabled(this.answerStatus === AnswerStatus.Answering)  // 作答中，按钮可用
+             .onClick(()=>{
+              // 判断练习状态
+              if(this.practiceStatus !== PracticeStatus.Running){
                 promptAction.showToast({message:"请先点击开始测试"})
                 return
               }
 
-              //判断正误
+              // 判断正误
               this.selectedOption = option
 
-              //更新统计信息
+              // 更新统计信息
               this.answeredCount++
-              if(option===this.questions[this.currentIndex].answer){
+              if (option === this.questions[this.currentIndex].answer) {
                 this.rightCount++
               }
 
-              //切换题目
-              this.answerStatus = AnswerStatus.Answered
-              if(this.currentIndex<this.questions.length-1){
-                setTimeout(()=>{
+              // 切换题目
+              this.answerStatus = AnswerStatus.Answered // 按下选项按钮，转换为已作答状态，选项按钮不可用
+              if (this.currentIndex < this.questions.length - 1) {  // 不是最后一题，切换题目
+                setTimeout(()=>{  // 延时 500ms 后，currentIndex 加 1，切换题目
                   this.currentIndex++
                   this.answerStatus = AnswerStatus.Answering
-                },500)
-              }else{
+                }, 500)
+              }
+              else {  // 是最后一题，停止测试
                 this.stopPractice()
               }
             })
-        },option => this.questions[this.currentIndex].word + '-' + option)
+          }, option => this.questions[this.currentIndex].word + '-' + option) // ForEach 的第三个参数，每当它改变的时候就重新渲染
       }
 
-      //开始、停止按钮
-      Row({space:50}){
+      // 控制按钮
+      Row({space:50}){  // 横向排布
         Button('停止测试')
-          .controlButtonStyle({
+          .controlButtonStyle({ // 控制按钮样式
             bg: Color.Transparent,
             border: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black,
             font: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black
-          })
-          .enabled(this.practiceStatus !== PracticeStatus.Stopped)
+          })  // 控制按钮样式
+          .enabled(this.practiceStatus !== PracticeStatus.Stopped)  // 控制按钮是否可用
           .onClick(()=>{
             this.stopPractice()
-          })
+          })  // 点击事件回调函数
 
         Button(this.practiceStatus === PracticeStatus.Running ? '暂停测试' : '开始测试')
-          .controlButtonStyle({
+          .controlButtonStyle({ // 控制按钮样式
             bg: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
             border: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
             font: Color.White
@@ -207,14 +207,15 @@ export struct PracticePage {
               //开始测试
               this.startPractice()
             }
-
           })
+
       }
-    }.practiceBgStyle()
+
+    }.practiceBgStyle() // 最外层 Column 样式
   }
 }
 
-//@Preview
+// 自定义弹窗
 @CustomDialog
 struct ResultDialog{
   answeredCount:number;
@@ -223,21 +224,20 @@ struct ResultDialog{
   resetPractice:()=>void
   startPractice:()=>void
   controller:CustomDialogController = new CustomDialogController({
-    builder:ResultDialog()
+    builder:ResultDialog()  // DialogController 用于控制当前弹窗
   })
-  @StorageProp('token') token:string = ''
+  @StorageProp('token') token:string = '' // 与 PersistentStorage 中的 token 进行单向链接
   @StorageLink('currentTabIndex') currentTabIndex: number = 0;
 
   build(){
     Column({space:10}){
-        Image($r('app.media.ic_close'))
+        Image($r('app.media.ic_close')) // 关闭
           .width(25)
           .height(25)
           .alignSelf(ItemAlign.End)
           .onClick(()=>{
             this.controller.close()
             this.resetPractice()
-
           })
 
         Column({space:10}){
@@ -258,7 +258,7 @@ struct ResultDialog{
             name:'准确率',
             fontColor:Color.Black
           }){
-            Text((this.answeredCount===0?0:this.rightCount/this.answeredCount*100).toFixed() + '%')
+            Text((this.answeredCount === 0 ? 0:this.rightCount / this.answeredCount * 100).toFixed() + '%')
           }
 
           StatItem({
@@ -268,7 +268,9 @@ struct ResultDialog{
           }){
             Text(this.answeredCount.toString())
           }
-          Divider()
+
+          Divider() // 分割线
+
           Row({space:30}){
             Button("再来一局")
               .controlButtonStyle({
@@ -278,9 +280,10 @@ struct ResultDialog{
               })
               .onClick(()=>{
                 this.controller.close()
-                this.resetPractice()
-                this.startPractice()
+                this.resetPractice()  // 按下“再来一局”，重启测试
+                this.startPractice()  // 重启测试后，开始测试
               })
+
             Button(this.token ? "立即打卡" : "登录打卡")
               .controlButtonStyle({
                 bg:Color.Black,
@@ -289,31 +292,29 @@ struct ResultDialog{
               })
               .onClick(async ()=>{
                 this.controller.close()
-                this.resetPractice()
-                //todo:登录并打卡
-                if(this.token){
-                // if(true){
-                    //发送打卡请求
-                    await createPost({
-                      rightCount:this.rightCount,
-                      answeredCount:this.answeredCount,
-                      timeUsed:this.timeUsed
-                    })
-                    promptAction.showToast({message:'打卡成功'})
-                    //通知
-                    emitter.emit({eventId:1})
-
-                    //跳转到打卡圈
-                    this.currentTabIndex=1
-                  }else{
-                  //跳转到登录页面
-                  router.pushUrl({url:'pages/LoginPage',params:{
+                this.resetPractice()  // 重启测试
+                // 登录并打卡
+                if(this.token){ // 已登录
+                  // 发送打卡请求
+                  await createPost({  // 等待请求完成后再执行接下来的指令
                     rightCount:this.rightCount,
                     answeredCount:this.answeredCount,
                     timeUsed:this.timeUsed
+                  })
+                  promptAction.showToast({message:'打卡成功'})
+                  // 通知打卡圈页面提交了新的打卡记录
+                  emitter.emit({eventId:1})
 
+                  // 跳转到打卡圈
+                  this.currentTabIndex=1
+                }
+                else{  // 未登录
+                  // 跳转到登录页面
+                  router.pushUrl({url:'pages/LoginPage',params:{  // 切换页面，也可以返回，路由时传递必要的参数
+                    rightCount:this.rightCount,
+                    answeredCount:this.answeredCount,
+                    timeUsed:this.timeUsed
                   }})
-
                 }
               })
           }
@@ -324,10 +325,10 @@ struct ResultDialog{
 
     }.backgroundColor(Color.Transparent)
     .width('80%')
-
   }
 }
 
+// 自定义状态组件
 @Component
 export struct StatItem {
   icon:Resource;
@@ -351,32 +352,34 @@ export struct StatItem {
     }
     .width('100%')
     .height(30)
-
   }
 }
 
-
+// 自定义选项按钮组件
 @Component
 struct OptionButton {
-  option:string;
-  answer:string;
-  @State optionStatus:OptionStatus = OptionStatus.Default;
-  @Prop selectedOption:string;
-  @Prop @Watch('onAnswerStatusChange') answerStatus:AnswerStatus
-
+  option:string // 选项字符串
+  answer:string // 正确答案字符串
+  @Prop selectedOption:string // 用户选择的选项
+  @Prop @Watch('onAnswerStatusChange') answerStatus:AnswerStatus  // 作答状态
+  // Prop 变量的更新顺序和声明顺序是一样的，因此 answerStatus 应该在 selectedOption 之后声明
+  @State optionStatus:OptionStatus = OptionStatus.Default
 
   onAnswerStatusChange(){
-    if(this.option===this.answer){
+    if (this.option === this.answer) {  // 自己是正确答案，改为绿色
       this.optionStatus = OptionStatus.Right
-    }else{
-      if(this.option === this.selectedOption){
+    }
+    else {  // 自己不是正确答案
+      if (this.option === this.selectedOption) {  // 自己是用户选择的选项，改为红色
         this.optionStatus = OptionStatus.Wrong
-      }else{
+      }
+      else {  // 自己不是用户选择的选项，不改变样式
         this.optionStatus = OptionStatus.Default
       }
     }
   }
 
+  // 根据选项按钮状态选择按钮颜色
   getBgColor(){
     switch(this.optionStatus){
       case OptionStatus.Right:
@@ -389,34 +392,43 @@ struct OptionButton {
   }
 
   build() {
-    Stack(){
+    Stack(){  // 将选项按钮和勾叉图标堆叠在一起
+      // 选项按钮
       Button(this.option)
         .optionButtonStyle({
           bg:this.getBgColor(),
-          font: this.optionStatus===OptionStatus.Default?Color.Black:Color.White
+          font: this.optionStatus === OptionStatus.Default ? Color.Black : Color.White
         })
-      if(this.optionStatus===OptionStatus.Right){
+
+      // 勾叉图标
+      if (this.optionStatus === OptionStatus.Right) {
         Image($r('app.media.ic_right'))
           .width(22)
           .height(22)
           .offset({x:10})
-      }else if(this.optionStatus===OptionStatus.Wrong){
-        Image($r('app.media.ic_wrong'))
-          .width(22)
-          .height(22)
-          .offset({x:10})
+      }
+      else {
+        if (this.optionStatus === OptionStatus.Wrong) {
+          Image($r('app.media.ic_wrong'))
+            .width(22)
+            .height(22)
+            .offset({x:10})
+        }
       }
     }.alignContent(Alignment.Start)
   }
 }
+
+// 最外层 Column 样式
 @Extend(Column) function practiceBgStyle() {
   .width('100%')
   .height('100%')
   .backgroundImage($r('app.media.img_practice_bg'))
   .backgroundImageSize({ width: '100%', height: '100%' })
-  .justifyContent(FlexAlign.SpaceEvenly)
+  .justifyContent(FlexAlign.SpaceEvenly)  // 均匀排布
 }
 
+// 统计面板样式
 @Styles function statBgStyle() {
   .backgroundColor(Color.White)
   .width('90%')
@@ -424,11 +436,13 @@ struct OptionButton {
   .padding(20)
 }
 
+// 单词样式
 @Extend(Text) function wordStyle() {
   .fontSize(50)
   .fontWeight(FontWeight.Bold)
 }
 
+// 例句样式
 @Extend(Text) function sentenceStyle() {
   .height(40)
   .fontSize(16)
@@ -438,6 +452,7 @@ struct OptionButton {
   .textAlign(TextAlign.Center)
 }
 
+// 选项按钮样式
 @Extend(Button) function optionButtonStyle(color: {
   bg: ResourceColor,
   font: ResourceColor
@@ -452,6 +467,7 @@ struct OptionButton {
   .fontColor(color.font)
 }
 
+// 控制按钮样式
 @Extend(Button) function controlButtonStyle(color: {
   bg: ResourceColor,
   border: ResourceColor,

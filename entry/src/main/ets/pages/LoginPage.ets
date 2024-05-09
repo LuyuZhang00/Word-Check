@@ -2,12 +2,13 @@ import router from '@ohos.router'
 import { createPost, login, sendCode } from '../http/Api'
 import promptAction from '@ohos.promptAction'
 import emitter from '@ohos.events.emitter'
+
 @Entry
 @Component
 struct LoginPage {
   @State phone:string=''
   @State code:string=''
-  @StorageLink('token') token:string = ''
+  @StorageLink('token') token:string = '' // 与 PersistentStorage 中的 token 建立双向链接
   @StorageLink('currentTabIndex') currentTabIndex: number = 0;
 
   build() {
@@ -16,7 +17,7 @@ struct LoginPage {
         .backStyle()
         .alignSelf(ItemAlign.Start)
         .onClick(() => {
-          //返回上一页面
+          // 返回上一页面
           router.back()
         })
 
@@ -49,7 +50,7 @@ struct LoginPage {
           Button('获取验证码')
             .buttonStyle(Color.White, Color.Black)
             .onClick(async () => {
-              //获取验证码
+              // 获取验证码
               let response = await sendCode(this.phone)
               this.code = response.data.data
             })
@@ -65,22 +66,22 @@ struct LoginPage {
           .width('100%')
           .margin({ top: 50 })
           .onClick(async () => {
-            //登录
+            // 登录
             let response = await login(this.phone,this.code)
             this.token = response.data.data
             if(this.currentTabIndex===0){
-              //todo:发送打卡请求
-              let params = router.getParams()
+              // 发送打卡请求
+              let params = router.getParams() // 获取路由参数
               await createPost({
                 rightCount:params['rightCount'],
                 answeredCount:params['answeredCount'],
                 timeUsed:params['timeUsed']
               })
               promptAction.showToast({message:'打卡成功'})
-              //通知
+              // 通知打卡圈页面提交了新的打卡记录
               emitter.emit({eventId:1})
 
-              //todo:跳转到打卡圈
+              // 跳转到打卡圈
               this.currentTabIndex=1;
             }
             router.back()
