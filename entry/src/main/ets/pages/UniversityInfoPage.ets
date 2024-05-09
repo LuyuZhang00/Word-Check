@@ -20,7 +20,8 @@ export struct UniversityInfoPage {
         .margin({ left: 20, right: 20, top: 10 })
       // 学校介绍
       this.listBuilder()
-    }.height('100%')
+    } // 最外层 Column
+    .height('100%')
     .width('100%')
   }
 
@@ -82,45 +83,48 @@ export struct UniversityInfoPage {
 // 自定义学校介绍组件
 @Component
 struct UniversityInfoItem {
-  universityInfo:UniversityInfo = universityInfoData[0];
+  universityInfo:UniversityInfo;
 
   build() {
-    Column({ space: 10 }){
-      Row({ space: 13 }) {
-        // 校徽
-        Image(this.universityInfo.badgeURL)
-          .height(55)
-          .width(55)
-          .borderRadius(5)
+    Row({ space: 13 }) {
+      // 校徽
+      Image(this.universityInfo.badgeURL)
+        .height(55)
+        .width(55)
+        .borderRadius(5)
 
-        // 学校信息
-        Column({ space: 0 }) {
-          Text(this.universityInfo.nameCN)
-            .height(30)
-            .fontSize(25)
-            .fontWeight(FontWeight.Bold)
-          Text(this.universityInfo.nameUS)
-            .height(20)
-            .fontSize(13)
-            .fontWeight(FontWeight.Bold)
-          Text("US News排名：" + String(this.universityInfo.usNewsRank))
-            .height(20)
-            .fontSize(14)
-            .fontWeight(FontWeight.Bold)
-          Text("位置：" + this.universityInfo.location)
-            .height(20)
-            .fontSize(14)
-            .fontWeight(FontWeight.Bold)
-        } // Column: 学校信息
-        .alignItems(HorizontalAlign.Start)
-      } // Row
-      .width('100%')
-      .alignItems(VerticalAlign.Top)
-    }
+      // 学校信息
+      Column({ space: 0 }) {
+        Text(this.universityInfo.nameCN)
+          .height(30)
+          .fontSize(25)
+          .fontWeight(FontWeight.Bold)
+        Text(this.universityInfo.nameUS)
+          .height(20)
+          .fontSize(13)
+          .fontWeight(FontWeight.Bold)
+        Text("US News排名：" + String(this.universityInfo.usNewsRank))
+          .height(20)
+          .fontSize(14)
+          .fontWeight(FontWeight.Bold)
+        Text("位置：" + this.universityInfo.location)
+          .height(20)
+          .fontSize(14)
+          .fontWeight(FontWeight.Bold)
+      } // Column: 学校信息
+      .alignItems(HorizontalAlign.Start)
+    } // Row
+    .alignItems(VerticalAlign.Top)
     .padding(10)
     .width('90%')
     .margin({ top: 10 })
     .borderRadius(10)
     .shadow({ radius: 20 })
-  }
+    .onClick(()=>{
+      router.pushUrl({url:'pages/UniversityDetailPage',params:{  // 点击学校介绍时，切换到学校详情页面
+        universityInfo:this.universityInfo
+      }})
+    })  // onClick
+  } // build
+
 }
