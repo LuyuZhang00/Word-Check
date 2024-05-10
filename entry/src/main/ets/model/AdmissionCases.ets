@@ -116,4 +116,14 @@ export function getAdmissionCasesByUniversity(graduateUniversity: string) {
   return indexes.map(index => admissionCaseData[index])
 }
 
+export function getAdmissionCasesByUniversityAndMajor(graduateUniversity: string, graduateMajor:string) {
+  let indexes: number[] = [];
+  for (let i = 0; i < admissionCaseData.length; i++) {
+    if (admissionCaseData[i]["graduateUniversity"] === graduateUniversity && admissionCaseData[i]["graduateMajor"] === graduateMajor) {
+      indexes.push(i)
+    }
+  }
+  return indexes.map(index => admissionCaseData[index])
+}
+
 

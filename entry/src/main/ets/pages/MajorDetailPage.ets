@@ -1,17 +1,18 @@
 import router from '@ohos.router'
-import { UniversityInfo, universityInfoData } from '../model/UniversityInfo'
-import { AdmissionCase, getAdmissionCasesByUniversity } from '../model/AdmissionCases'
-import { getMajorInfoByUniversity, MajorInfo } from '../model/MajorInfo'
+import promptAction from '@ohos.promptAction'
+import { AdmissionCase, getAdmissionCasesByUniversityAndMajor } from '../model/AdmissionCases'
+import { getUniversityInfoByName, UniversityInfo } from '../model/UniversityInfo'
+import { MajorInfo, majorInfoData } from '../model/MajorInfo'
 
 @Preview
 @Entry
 @Component
-struct UniversityDetailPage {
+struct MajorDetailPage {
   @State routerParams:Object = router.getParams()
-  @State universityInfo:UniversityInfo = this.routerParams["universityInfo"]
-  // @State universityInfo:UniversityInfo = universityInfoData[0] // 测试用
-  @State admissionCases:AdmissionCase[] = getAdmissionCasesByUniversity(this.universityInfo["nameCN"])
-  @State majorInfo:MajorInfo[] = getMajorInfoByUniversity(this.universityInfo["nameCN"])
+  @State majorInfo:MajorInfo = this.routerParams["majorInfo"]
+  // @State majorInfo:MajorInfo = majorInfoData[0] // 测试用
+  @State universityInfo:UniversityInfo = getUniversityInfoByName(this.majorInfo.university)
+  @State admissionCases:AdmissionCase[] = getAdmissionCasesByUniversityAndMajor(this.universityInfo.nameCN, this.majorInfo.name)
   scroller:Scroller = new Scroller()
 
   build() {
@@ -25,7 +26,7 @@ struct UniversityDetailPage {
           router.back()
         })
 
-      // header：学校信息
+      // header：项目名称
       Row({ space: 25 }) {
         // 校徽
         Image(this.universityInfo.badgeURL)
@@ -33,21 +34,17 @@ struct UniversityDetailPage {
           .width(70)
           .borderRadius(5)
 
-        // 学校信息
+        // 专业信息
         Column({ space: 0 }) {
-          Text(this.universityInfo.nameCN)
+          Text(this.majorInfo.name)
             .height(30)
             .fontSize(25)
             .fontWeight(FontWeight.Bold)
-          Text(this.universityInfo.nameUS)
-            .height(20)
-            .fontSize(13)
-            .fontWeight(FontWeight.Bold)
-          Text("US News排名：" + String(this.universityInfo.usNewsRank))
+          Text(this.universityInfo.nameCN)
             .height(20)
             .fontSize(14)
             .fontWeight(FontWeight.Bold)
-          Text("位置：" + this.universityInfo.location)
+          Text(this.majorInfo.type)
             .height(20)
             .fontSize(14)
             .fontWeight(FontWeight.Bold)
@@ -62,22 +59,39 @@ struct UniversityDetailPage {
 
       Divider().padding({top: 5})
 
+      // 项目信息列表
       List({scroller:this.scroller}) {  // 学校信息列表
-        ListItem() {
-          Image(this.universityInfo.photoURL)
-            .height(200)
-            .width(360)
-            .borderRadius(10)
-            .padding({top: 15})
-        }
-
+        // 项目信息
         ListItem() {
           Column() {
-            Text("学校简介")
+            Text("项目信息")
               .fontWeight(FontWeight.Bold)
               .height(35)
 
-            Text(this.universityInfo.introduction)
+            Text("专业方向" + "    " + this.majorInfo.category)
+              .fontSize(14)
+              .height(20)
+
+            Text("专业排名" + "    " + String(this.majorInfo.qsRank))
+              .fontSize(14)
+              .height(20)
+
+            Text("项目时长" + "    " + String(this.majorInfo.duration) + "年")
+              .fontSize(14)
+              .height(20)
+          } // Column: 学校简介
+          .width('100%')
+          .alignItems(HorizontalAlign.Start)
+          .margin({ top: 5 })
+        }
+
+        // 项目简介
+        ListItem() {
+          Column() {
+            Text("项目简介")
+              .fontWeight(FontWeight.Bold)
+              .height(35)
+            Text(this.majorInfo.introduction)
               .fontSize(14)
           } // Column: 学校简介
           .width('100%')
@@ -85,39 +99,70 @@ struct UniversityDetailPage {
           .margin({ top: 5 })
         }
 
+        // 语言要求
         ListItem() {
-          Row() {
-            Text("专业设置")
+          Column() {
+            Text("语言要求")
               .fontWeight(FontWeight.Bold)
               .height(35)
-            Blank()
-            Text("QS排名")
-              .fontWeight(FontWeight.Bold)
-              .height(35)
-          }
+
+            Row({space : 30}) {
+              Column() {
+                Text("TOEFL")
+                  .fontSize(14)
+                  .height(20)
+
+                Text("GRE")
+                  .fontSize(14)
+                  .height(20)
+              }
+              .alignItems(HorizontalAlign.Start)
+
+              Column() {
+                Text(this.majorInfo.requiredTOEFL === 0 ? "需要提交" : String(this.majorInfo.requiredTOEFL))
+                  .fontSize(14)
+                  .height(20)
+
+                Text(this.majorInfo.requiredTOEFL === 0 ? "需要提交" : String(this.majorInfo.requiredTOEFL))
+                  .fontSize(14)
+                  .height(20)
+              }
+              .alignItems(HorizontalAlign.Start)
+            }
+          } // Column: 语言要求
+          .width('100%')
+          .alignItems(HorizontalAlign.Start)
           .margin({ top: 5 })
-          .width('97%')
+        } // ListItem: 语言要求
+
+        // 其他要求
+        ListItem() {
+          Column() {
+            Text("其他要求")
+              .fontWeight(FontWeight.Bold)
+              .height(35)
+
+            Text(this.majorInfo.requirements)
+              .fontSize(14)
+          } // Column: 其他要求
+          .width('100%')
+          .alignItems(HorizontalAlign.Start)
+          .margin({ top: 5 })
         }
 
-        ForEach(this.majorInfo, (majorInfo) => {
-          ListItem() {
-            MajorInfoItem({ majorInfo: majorInfo })
-          }
-          .padding({ left:5 })
-        })
-
+        // 录取案例
         ListItem() {
           Text("录取案例")
             .fontWeight(FontWeight.Bold)
             .height(35)
-            .margin({ top: 10 })
+            .margin({ top: 5 })
         }
 
         ForEach(this.admissionCases, (admissionCase) => {
           ListItem() {
             AdmissionCaseItem({ admissionCase : admissionCase })
           }
-          .padding({ left:5 })
+          .padding({ left:7 })
         })
 
         ListItem().height(140).selectable(false)  // 占位符，不然最后一个项目在屏幕外
@@ -178,32 +223,6 @@ struct AdmissionCaseItem {
     .onClick(()=>{
       router.pushUrl({url:'pages/AdmissionCaseDetailPage',params:{  // 点击学校介绍时，切换到学校详情页面
         admissionCase:this.admissionCase
-      }})
-    })  // onClick
-  } // build
-}
-
-// 自定义专业信息组件
-// @Preview
-@Component
-struct MajorInfoItem {
-  majorInfo:MajorInfo
-
-  build() {
-    // 录取详情
-    Row() {
-      Text(this.majorInfo.name)
-      Blank()
-      Text(String(this.majorInfo.qsRank))
-    }
-    .width('97%')
-    .padding(10)
-    .margin({ top: 10 })
-    .borderRadius(7)
-    .shadow({ radius: 20 })
-    .onClick(()=>{
-      router.pushUrl({url:'pages/MajorDetailPage',params:{  // 点击学校介绍时，切换到学校详情页面
-        majorInfo:this.majorInfo
       }})
     })  // onClick
   } // build

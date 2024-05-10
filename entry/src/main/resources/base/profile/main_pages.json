@@ -5,6 +5,7 @@
     "pages/LoginPage",
     "pages/PostHistoryPage",
     "pages/UniversityDetailPage",
-    "pages/AdmissionCaseDetailPage"
+    "pages/AdmissionCaseDetailPage",
+    "pages/MajorDetailPage"
   ]
 }

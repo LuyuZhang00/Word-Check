@@ -40,7 +40,7 @@ export struct UniversityInfoPage {
       .height('100%')
       .alignListItem(ListItemAlign.Center)
       .onReachEnd(()=>{ // 列表到底了
-        promptAction.showToast({message:'没有更多数据了'})
+        // promptAction.showToast({message:'没有更多数据了'})
       })
 
       // 返回顶部按钮和刷新按钮
