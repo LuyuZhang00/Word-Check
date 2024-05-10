@@ -30,12 +30,13 @@ export struct UniversityInfoPage {
   listBuilder() {
     Stack() { // 将学校介绍列表与控制按钮堆叠在一起
       // 打卡记录列表
-      List({scroller:this.scroller}) {  // 打卡记录列表
+      List({scroller:this.scroller}) {  // 学校介绍列表
         ForEach(this.universityInfoList, (universityInfo) => {
           ListItem() {
             UniversityInfoItem({ universityInfo: universityInfo })  // 打卡记录
           }
         })
+        ListItem().height(10).selectable(false)  // 占位符，不然最后一个项目在屏幕外
       }.width('100%')
       .height('100%')
       .alignListItem(ListItemAlign.Center)

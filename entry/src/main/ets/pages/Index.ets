@@ -2,6 +2,7 @@ import { CirclePage } from './CirclePage';
 import { MinePage } from './MinePage';
 import { PracticePage } from './PracticePage';
 import { UniversityInfoPage } from './UniversityInfoPage';
+import { CalendarPage } from './CalendarPage';
 
 @Entry
 @Component
@@ -20,11 +21,15 @@ struct Index {
 
       TabContent(){
         UniversityInfoPage()
-      }.tabBar(this.barBuilder(2, '择校', $r('app.media.ic_circle'), $r('app.media.ic_circle_selected')))
+      }.tabBar(this.barBuilder(2, '选校', $r('app.media.ic_practice'), $r('app.media.ic_practice_selected')))
+
+      TabContent(){
+        CalendarPage()
+      }.tabBar(this.barBuilder(3, '日历', $r('app.media.ic_circle'), $r('app.media.ic_circle_selected')))
 
       TabContent(){
         MinePage()
-      }.tabBar(this.barBuilder(3, '我的', $r('app.media.ic_mine'), $r('app.media.ic_mine_selected')))
+      }.tabBar(this.barBuilder(4, '我的', $r('app.media.ic_mine'), $r('app.media.ic_mine_selected')))
 
     }.barPosition(BarPosition.End)  // 导航栏位于页面底部
     .onChange((index) => {  // 选择新的页签时，修改被选中的页签索引
