@@ -4,6 +4,7 @@
     "pages/SplashPage",
     "pages/LoginPage",
     "pages/PostHistoryPage",
-    "pages/UniversityDetailPage"
+    "pages/UniversityDetailPage",
+    "pages/AdmissionCaseDetailPage"
   ]
 }

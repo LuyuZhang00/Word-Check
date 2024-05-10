@@ -7,9 +7,9 @@ import { AdmissionCase, getAdmissionCasesByUniversity } from '../model/Admission
 @Entry
 @Component
 struct UniversityDetailPage {
-  // @State routerParams:Object = router.getParams()
-  // @State universityInfo:UniversityInfo = this.routerParams["universityInfo"]
-  @State universityInfo:UniversityInfo = universityInfoData[0] // 测试用
+  @State routerParams:Object = router.getParams()
+  @State universityInfo:UniversityInfo = this.routerParams["universityInfo"]
+  // @State universityInfo:UniversityInfo = universityInfoData[0] // 测试用
   @State admissionCases:AdmissionCase[] = getAdmissionCasesByUniversity(this.universityInfo["nameCN"])
   scroller:Scroller = new Scroller()
 
@@ -89,19 +89,19 @@ struct UniversityDetailPage {
           .margin({ top: 5 })
         }
 
-
-
         ForEach(this.admissionCases, (admissionCase) => {
           ListItem() {
-            Text(admissionCase["graduateUniversity"])
+            AdmissionCaseItem({ admissionCase : admissionCase })
           }
         })
+
+        ListItem().height(140).selectable(false)  // 占位符，不然最后一个项目在屏幕外
       } // List
       .width('100%')
       .height('100%')
       .alignListItem(ListItemAlign.Center)
       .onReachEnd(()=>{ // 列表到底了
-        promptAction.showToast({message:'没有更多数据了'})
+        // promptAction.showToast({message:'没有更多数据了'})
       })
 
     } // 最外层 Column
@@ -120,4 +120,44 @@ struct UniversityDetailPage {
   .padding({
     top: 30, bottom: 30, left: 20, right: 20
   })
+}
+
+// 自定义录取案例组件
+// @Preview
+@Component
+struct AdmissionCaseItem {
+  admissionCase:AdmissionCase;
+
+  build() {
+    // 录取详情
+    Column({ space: 0 }) {
+      Text(this.admissionCase.graduateMajor)
+        .height(25)
+        .fontSize(20)
+        .fontWeight(FontWeight.Bold)
+      Text("录取年份：" + String(this.admissionCase.admissionYear))
+        .height(20)
+        .fontSize(13)
+        .fontWeight(FontWeight.Bold)
+      Text("本科院校：" + this.admissionCase.undergraduateUniversity)
+        .height(20)
+        .fontSize(14)
+        .fontWeight(FontWeight.Bold)
+      Text("本科专业：" + this.admissionCase.undergraduateMajor)
+        .height(20)
+        .fontSize(14)
+        .fontWeight(FontWeight.Bold)
+    } // Column: 学校信息
+    .alignItems(HorizontalAlign.Start)
+    .padding(10)
+    .width('97%')
+    .margin({ top: 10 })
+    .borderRadius(10)
+    .shadow({ radius: 20 })
+    .onClick(()=>{
+      router.pushUrl({url:'pages/AdmissionCaseDetailPage',params:{  // 点击学校介绍时，切换到学校详情页面
+        admissionCase:this.admissionCase
+      }})
+    })  // onClick
+  } // build
 }

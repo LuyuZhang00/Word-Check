@@ -123,4 +123,11 @@ export const universityInfoData: UniversityInfo[] = [
   }
 ]
 
+export function getUniversityInfoByName(nameCN: string) {
+  for (let i = 0; i < universityInfoData.length; i++) {
+    if (universityInfoData[i]["nameCN"] === nameCN) {
+      return universityInfoData[i]
+    }
+  }
+}
 
