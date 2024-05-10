@@ -1,10 +1,10 @@
 {
   "app": {
-    "bundleName": "com.atguigu.practice",
+    "bundleName": "com.se.practice",
     "vendor": "example",
     "versionCode": 1000000,
     "versionName": "1.0.0",
-    "icon": "$media:ic_logo",
+    "icon": "$media:ic_logo_n",
     "label": "$string:app_name"
   }
 }

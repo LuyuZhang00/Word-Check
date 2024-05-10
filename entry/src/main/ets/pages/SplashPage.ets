@@ -21,10 +21,10 @@ struct SplashPage {
     Column(){
 
       if(this.flag){
-        Image($r('app.media.ic_logo'))
+        Image($r('app.media.ic_logo_n'))
           .logoStyle()
           .transition({type:TransitionType.Insert,opacity:0,translate:{x:-150}})
-        Text("快速单词记忆神器")
+        Text("留学助手")
           .titleStyle()
           .transition({type:TransitionType.Insert,opacity:0,translate:{x:150}})
       }

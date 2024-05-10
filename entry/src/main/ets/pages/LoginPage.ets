@@ -97,16 +97,16 @@ struct LoginPage {
       }.formBgStyle()
 
       Row({ space: 10 }) {
-        Image($r('app.media.ic_logo'))
+        Image($r('app.media.ic_logo_n'))
           .width(36)
           .height(36)
-        Text('快速记单词神器')
+        Text('留学助手')
           .fontColor('#546B9D')
           .fontWeight(FontWeight.Bold)
           .fontSize(20)
       }.margin({ top: 70 })
 
-      Text('Developed By Atguigu')
+      Text('Developed By SE_2024')
         .fontSize(12)
         .fontColor('#546B9D')
         .margin(10)
