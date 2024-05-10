@@ -3,6 +3,9 @@
     "pages/Index",
     "pages/SplashPage",
     "pages/LoginPage",
-    "pages/PostHistoryPage"
+    "pages/PostHistoryPage",
+    "pages/UniversityDetailPage",
+    "pages/AdmissionCaseDetailPage",
+    "pages/MajorDetailPage"
   ]
 }

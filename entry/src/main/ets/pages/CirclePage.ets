@@ -5,15 +5,17 @@ import { convertMillisecondsToTime } from '../utils/DateUtil'
 import { cancelLike, getAllPost, like } from '../http/Api'
 import promptAction from '@ohos.promptAction'
 import emitter from '@ohos.events.emitter'
+
 @Component
 export struct CirclePage {
   @State postInfoList: PostInfo[] = []
   @StorageProp('token') @Watch('onTokenChange') token: string = ''
-  page:number = 1
-  total:number = 0
+  page:number = 1 // 当前页面号
+  total:number = 0  // 总页面数量
   @State isLoading:Boolean = false;
   scroller:Scroller = new Scroller()
 
+  // 加载某一页的数据
   async getPostInfoPage(){
     let response = await getAllPost(this.page,10)
     response.data.data.records.forEach(post=>this.postInfoList.push(new PostInfo(post)))
@@ -21,6 +23,7 @@ export struct CirclePage {
     this.page++;
   }
 
+  // 刷新页面
   async refresh(){
     this.isLoading = true;
     this.postInfoList=[]
@@ -30,21 +33,24 @@ export struct CirclePage {
     this.isLoading = false;
   }
 
+  // 当组件出现时，如果用户已登录，则加载数据
   aboutToAppear(){
     if(this.token){
       this.getPostInfoPage()
     }
 
+    // 当组件出现时，开始监听提交新的打卡记录的事件
     emitter.on({eventId:1},()=>{
       this.refresh()
-
     })
   }
 
+  // 当 token 改变时，如果用户登录，则加载数据；如果用户退出登录，则清楚数据
   onTokenChange(){
-    if(this.token){
+    if (this.token) {
       this.getPostInfoPage()
-    }else{
+    }
+    else {
       this.postInfoList=[]
       this.total=0
       this.page=1
@@ -53,6 +59,7 @@ export struct CirclePage {
 
   build() {
     Column() {
+      // header
       Text('英语打卡圈')
         .fontSize(18)
         .margin({ top: 45 })
@@ -61,23 +68,20 @@ export struct CirclePage {
         .color(Color.Black)
         .margin({ left: 20, right: 20, top: 10 })
 
-      if (this.token) {
-        //todo:打卡列表
+      if (this.token) { // 已登录
         if(this.isLoading){
           this.loadingBuilder()
         }else{
           this.listBuilder()
         }
-      } else {
-        //todo:未登录
+      } else {  // 未登录
         this.unLoginBuilder()
       }
     }.height('100%')
     .width('100%')
   }
 
-
-
+  // 未登录页面布局
   @Builder
   unLoginBuilder() {
     Column({ space: 30 }) {
@@ -102,6 +106,7 @@ export struct CirclePage {
     .justifyContent(FlexAlign.Center)
   }
 
+  // 加载中页面布局
   @Builder
   loadingBuilder() {
     Column({ space: 15 }) {
@@ -117,26 +122,30 @@ export struct CirclePage {
     .justifyContent(FlexAlign.Center)
   }
 
+  // 打卡记录列表页面布局
   @Builder
   listBuilder() {
-    Stack() {
-      List({scroller:this.scroller}) {
+    Stack() { // 将打卡记录列表与控制按钮堆叠在一起
+      // 打卡记录列表
+      List({scroller:this.scroller}) {  // 打卡记录列表
         ForEach(this.postInfoList, (post) => {
           ListItem() {
-            PostItem({ post: post })
+            PostItem({ post: post })  // 打卡记录
           }
         })
       }.width('100%')
       .height('100%')
       .alignListItem(ListItemAlign.Center)
-      .onReachEnd(()=>{
-        if(this.postInfoList.length<this.total){
+      .onReachEnd(()=>{ // 列表到底了
+        if (this.postInfoList.length < this.total) {  // 未加载全部条目
           this.getPostInfoPage()
-        }else{
+        }
+        else {  // 已加载全部条目
           promptAction.showToast({message:'没有更多数据了'})
         }
       })
 
+      // 返回顶部按钮和刷新按钮
       Column({ space: 20 }) {
         Button({ type: ButtonType.Circle }) {
           Image($r('app.media.ic_top'))
@@ -148,7 +157,7 @@ export struct CirclePage {
         .backgroundColor(Color.Black)
         .opacity(0.5)
         .onClick(() => {
-          //返回顶部
+          // 返回顶部
           this.scroller.scrollToIndex(0)
         })
 
@@ -162,7 +171,6 @@ export struct CirclePage {
         .backgroundColor(Color.Black)
         .opacity(0.5)
         .onClick(() => {
-          //todo:刷新
           this.refresh()
         })
       }
@@ -174,12 +182,14 @@ export struct CirclePage {
 
 }
 
+// 自定义打卡记录组件
 @Component
 struct PostItem {
   @ObjectLink post: PostInfo;
 
   build() {
     Column({ space: 10 }) {
+      // header
       Row({ space: 10 }) {
         Image(this.post.avatarUrl)
           .height(40)
@@ -201,6 +211,7 @@ struct PostItem {
         .width('100%')
 
       Row() {
+        // 打卡信息
         Column() {
           StatItem({
             icon: $r('app.media.ic_timer_white'),
@@ -234,6 +245,7 @@ struct PostItem {
         .backgroundImage($r('app.media.img_post_bg'))
         .backgroundImageSize(ImageSize.Cover)
 
+        // 点赞信息
         Column() {
           Text(this.post.likeCount.toString())
             .fontSize(12)
@@ -243,15 +255,15 @@ struct PostItem {
             .width(26)
             .height(26)
             .onClick(() => {
-              //点赞/取消点赞
+              // 点赞/取消点赞
               if(this.post.isLike){
-                //取消点赞
+                // 已点赞，则取消点赞
                 this.post.isLike=false;
                 this.post.likeCount--;
                 cancelLike(this.post.id)
 
               }else{
-                //点赞
+                // 未点赞，则点赞
                 this.post.isLike=true;
                 this.post.likeCount++;
                 like(this.post.id)

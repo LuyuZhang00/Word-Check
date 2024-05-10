@@ -1,11 +1,11 @@
 export interface Question {
-  word: string; //单词
-  sentence: string; //例句
-  options: string[]; //选项
-  answer: string; //答案
+  word: string; // 单词
+  sentence: string; // 例句
+  options: string[]; // 选项
+  answer: string; // 答案
 }
 
-//题库
+// 题库
 export const questionData: Question[] = [
   {
     word: "book",
@@ -129,7 +129,7 @@ export const questionData: Question[] = [
   }
 ]
 
-//从题库中随机抽取n个题目
+// 从题库中随机抽取 n 个题目
 export function getRandomQuestions(count: number) {
   let length = questionData.length;
 
