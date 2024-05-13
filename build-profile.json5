@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storePassword": "0000001C901BD9086732B7D5C681B616FA9228AE4886B8507C238E4897E61F09D4BE8BEB0FC9B68963FA9241",
+          "certpath": "C:/Users/21083/LXZS.cer",
+          "keyAlias": "LXZS",
+          "keyPassword": "0000001CADDE0BFCE73D3B04FCCC02F23692A5FFEB1460705D2F6B7B03D2663BFCBE7410F79FBADEA5B9F5CA",
+          "profile": "C:/Users/21083/LXZSRelease.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/21083/release.p12"
+        }
+      }
+    ],
     "compileSdkVersion": 9,
     "compatibleSdkVersion": 9,
     "products": [
