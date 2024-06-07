@@ -4,7 +4,7 @@
 
 [结项汇报PPT](report/结项0513.pdf)
 
-[演示视频](https://pan.baidu.com/s/1O6H_1iVqSPx9W6h6Etg9Zw?pwd=lbyt)
+[演示视频](https://www.bilibili.com/video/BV1Tn4y1R7by/)
 
 ## 一、项目简介
 在当今全球化的时代，留学已经成为许多人实现个人及职业发展目标的重要途径之一。由于涉及到语言考试、多项材料的准备、各种信息的获取和各种选择的权衡，许多人可能感到迷茫和无措。留学申请过程的复杂性常常令人望而却步。
